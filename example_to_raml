@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+import json, yaml
+params_str = input("Enter query parameters str > ")
+response_str = input("Enter response str > ")
+
+def toJson(s):
+    return s.replace("'", '"').replace("True", "true").replace("False", "false").replace("None", "null")
+def get_type(s):
+    if type(s)==type(True):
+        return "boolean"
+    if type(s)==type(0):
+        return "number"
+    elif type(s)==type(""):
+        return "string"
+    elif type(s)==type(None):
+        return "nil" 
+    else:
+       print("ERROR in get_type: unknown type of: ", s)
+       exit()
+    
+
+def gen_params(res, offset=2, no_curly=False):
+    print("gen_example", offset, res)
+    if type(res)==type(True):
+        return str(res).lower() + "\n"
+    if type(res)==type(0):
+        return str(res) + "\n"
+    elif type(res)==type(""):
+        return res + '\n'
+    elif type(res)==type(None):
+        return "null\n"
+    elif type(res)==type( {} ):
+        s = ""
+        for key in res.keys():
+            s += " "*(offset+2) + key +':\n'
+            val = res[key]
+            s += " "*(offset+4) +"type: "+ get_type(val) +"\n"
+            s += " "*(offset+4) +"description: \n"
+            s += " "*(offset+4) +"example: "+ gen_params(val, offset+2)
+        return s
+    else:
+       print("ERROR in gen_params: unknown type of: ", res)
+       exit()
+
+def gen_example(res, offset=12):
+    #print("gen_example", offset, res)
+    if type(res)==type(True):
+        return str(res).lower() + ",\n"
+    if type(res)==type(0):
+        return str(res) + ",\n"
+    elif type(res)==type(""):
+        return '"'+ res + '",\n'
+    elif type(res)==type(None):
+        return "null,\n"
+    elif type(res)==type( {} ):
+        save_offset = offset
+        s = " "*offset + "{\n"
+        for key in res.keys():
+            s += " "*(offset+2) +'"'+ key +'": '+  gen_example(res[key], offset+2)
+        if s.endswith(",\n"):
+            s = s[:-2] +"\n"        #Brain damaged json cannot handle final comma...
+        s += " "*save_offset + "}\n"
+        return s
+    else:
+       print("ERROR in gen_example: unknown type of: ", res)
+       exit()
+
+if params_str:
+    p_start = "queryParameters:\n"
+    """
+      author:
+        type: string
+        description: An author's full name
+        example: Mary Roach
+"""
+    params_str = toJson(params_str)
+    params = json.loads(params_str)
+    p = gen_params(params)
+
+    p_end = """\
+"""
+    print(p_start + p + p_end)
+
+if response_str:
+    r_start = """\
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+"""
+
+    response_str = toJson(response_str)
+    res = json.loads(response_str)
+    r = gen_example(res)
+
+    r_end = """\
+"""
+
+    print()
+    print(r_start + r + r_end)
