@@ -32,13 +32,14 @@ The strings are expected to be a valid JSON dictionary, with some relaxations.
 ## Overview
 
 The basic process done is to look for URLs and assume those are requests and for curlies, and assume those are the parameters and/or replies.
-The software will also try to detect whether the log was produced by Jave/JavaScript or by Python.## Prerequisites and Installing
+The software will also try to detect whether the log was produced by Jave/JavaScript or by Python.
+
+## Prerequisites and Installing
 
 Python 3.x is needed.
 You can get and install Python from the [Python Software Foundation](https://www.python.org/) 
 
 No other installation is needed. Just get the repository.
-
 
 ## Author
 
